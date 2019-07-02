@@ -10,7 +10,7 @@ from sqlalchemy import create_engine, func
 ##### import the data tornado from the CSV file
 
 ##tornadodataCSV = "resources/TornadoData.csv"
-tornadodataCSV = "resources/TornadoDataWithDecades.csv"
+tornadodataCSV = "resources/TornadoDataWithDecadesAverages.csv"
 df = pd.read_csv(tornadodataCSV)
 
 
