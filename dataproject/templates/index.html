@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="X-UA-Compatible" content="ie=edge">
-  <title>Tornado Visualization</title>
+  <title>Flask Plotlyjs Example</title>
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
 </head>
 
@@ -32,7 +32,7 @@
         </div>
       </div>
       <div class="col-md-5">
-        <div id="pie"></div>
+        
       </div>
       <div class="col-md-5">
         <div id="gauge"></div>
@@ -41,15 +41,17 @@
   </div>
   <div class="row">
     <div class="col-md-12">
-      <div id="bubble"></div>
+      
     </div>
   </div>
-
+  <div id="bar-plot"></div>
+  <div id="trend-plot"></div>
   <!-- <script src="https://cdn.plot.ly/plotly-1.31.2.min.js"></script> -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/5.5.0/d3.js"></script>
   <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
   <script src="{{ url_for('static', filename='js/bonus.js') }}"></script>
-  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/trendplot.js') }}"></script>
+  <script src="{{ url_for('static', filename='js/plots.js') }}"></script>
 
 </body>
 
