@@ -21,13 +21,16 @@ d3.json("/trend_chart").then((data)=>{
  var trace0 = {
   x: x_decade,
   y: y_total_human_impact,
-  type: "scatter"
+  type: "scatter",
+  name: "Total Human Impact"
   };
 var trace1 = {
   x: x_decade,
   y: y_total_tornado_count,
   type: "scatter",
-  name: "Injury"
+  yaxis: 'y2',
+  name: "Total Tornado Count"
+  
 };
 
 

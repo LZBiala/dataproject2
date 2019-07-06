@@ -29,7 +29,7 @@ var trace1 = {
   x: x_decade,
   y: y_fscale_1,
   type: "bar",
-  name: "Momahdou"
+ 
 };
 var trace2 = {
   x: x_decade,
@@ -63,31 +63,4 @@ var layout = {
 
 console.log(`This is  the story${x_decade}`)
 Plotly.newPlot("bar-plot", data_1, layout);
-})//d3 end
- 
-
-
-
-/*
-//var decade = ['']
-//var fscale = ['fscale0','fscale1','fscale2','fscale3', 'fscale4', 'fscale5']
-
-//Create the Trace
-var trace1 = {
-  x: x_decade,
-  y: y_fscale,
-  type: "bar"
-};
-
-var data_1 = [trace1];
-
-var layout = {
-  title: "Frequency of Tornadoes By Magnitude",
-  xaxis: { title: "Decade" },
-  yaxis: { title: "fscale" },
-  barmode: 'group'
-};
-
-console.log(`This is  the story${x_decade}`)
-Plotly.newPlot("bar-plot", data_1, layout);
-*/
+})
