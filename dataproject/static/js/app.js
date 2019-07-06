@@ -43,7 +43,7 @@ var lineMarkers = [];
     L.control.layers(baseMaps, overlayMaps).addTo(map);
   });
   
-}//end buildMetadara
+}//end buildMetadata
 
 function buildCharts(sample) {
   console.log("Build new chart");

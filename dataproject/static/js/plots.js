@@ -23,32 +23,40 @@ d3.json("/chart").then((data)=>{
  var trace0 = {
   x: x_decade,
   y: y_fscale_0,
+  name: "F Scale 0",
   type: "bar"
+
+
 };
 var trace1 = {
   x: x_decade,
   y: y_fscale_1,
+  name: "F Scale 1",
   type: "bar",
  
 };
 var trace2 = {
   x: x_decade,
   y: y_fscale_2,
+  name: "F Scale 2",
   type: "bar"
 };
 var trace3 = {
   x: x_decade,
   y: y_fscale_3,
+  name: "F Scale 3",
   type: "bar"
 };
 var trace4 = {
   x: x_decade,
   y: y_fscale_4,
+  name: "F Scale 4",
   type: "bar"
 };
 var trace5 = {
   x: x_decade,
   y: y_fscale_5,
+  name: "F Scale 5",
   type: "bar"
 };
 
@@ -57,10 +65,10 @@ var data_1 = [trace0,trace1,trace2,trace3,trace4,trace5];
 var layout = {
   title: "Frequency of Tornadoes By Magnitude",
   xaxis: { title: "Decade" },
-  yaxis: { title: "fscale" },
+  yaxis: { title: "Frequency" },
   barmode: 'group'
 };
 
-console.log(`This is  the story${x_decade}`)
+console.log(`This is the story${x_decade}`)
 Plotly.newPlot("bar-plot", data_1, layout);
 })
