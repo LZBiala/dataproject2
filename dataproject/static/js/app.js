@@ -1,37 +1,44 @@
 function buildMetadata(year,state) {
   var greenIcon = L.icon({
-    iconUrl: '../images/Tmain.png',
-    shadowUrl: '../images/Tshadow.png',
+    iconUrl: 'static/images/Tmain.png',
+    //shadowUrl: 'static/images/Tshadow.png',
 
     iconSize:     [38, 95], // size of the icon
-    shadowSize:   [50, 64], // size of the shadow
+    //shadowSize:   [50, 64], // size of the shadow
     iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
-    shadowAnchor: [4, 62],  // the same for the shadow
+    //shadowAnchor: [4, 62],  // the same for the shadow
     popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
 });
 
 var locMarkers = [];
+var lineMarkers = [];
+
   var url = `/metadata/${year}/${state}`;
   d3.json(url).then(function(data){
   
     for(var i = 0; i < data.length;i++)
     {
-      //var latLngs = [[data[i]["startingLatitude"],data[i]["startingLongitude"]],
-      //[data[i]["endingLatitude"],data[i]["endingLongitude"]]];
-      //var polyline = L.polyline(latLngs, {color: 'red'}).addTo(map);
       locMarkers.push(
-      L.marker([data[i]["startingLatitude"],data[i]["startingLongitude"]]).bindPopup("<h2>Magnitude: </h2><hr>" + 
-      "<h3>" + data[i]["magnitude"] + "</h3>"));
-      //L.marker([data[i]["endingLatitude"],data[i]["endingLongitude"]],{icon: greenIcon}).addTo(map);
+      L.marker([data[i]["startingLatitude"],data[i]["startingLongitude"]],{icon: greenIcon}).bindPopup("<h2>Magnitude: </h2><hr>" + 
+      "<h3>" + data[i]["magnitude"] + "</h3><hr><h2>Date: </h2><hr>" +"<h3>" + data[i]["Date"] + "</h3>"));
+      
+      if((data[i]["endingLatitude"] != 0)&&(data[i]["endingLatitude"] != 0))
+      {
+        var latLngs = [[data[i]["startingLatitude"],data[i]["startingLongitude"]],
+        [data[i]["endingLatitude"],data[i]["endingLongitude"]]];
+        lineMarkers.push(L.polyline(latLngs, {color: 'red'}).bindPopup("<h2>Length(miles):<h2><hr>"+data[i]["Length"]));
+      }
     }
     var locLayer = L.layerGroup(locMarkers);
-
-    var overlayMaps = {Sites:locLayer};
+    var lineLayer = L.layerGroup(lineMarkers);
     
-    var map = new L.map("map", {
+    var overlayMaps = {Sites:locLayer,Travel:lineLayer};
+    map.off();
+    map.remove();
+    map = L.map("map", {
       center: [37.0902, -95.7129],
-      zoom: 11,
-      layers:[streetLayer,locLayer]
+      zoom: 4.5,
+      layers:[streetLayer,locLayer,lineLayer]
     });
     L.control.layers(baseMaps, overlayMaps).addTo(map);
   });
@@ -72,9 +79,6 @@ function init() {
         .property("value", sample[0]);
     });
 
-    // Use the first sample from the list to build the initial plots
-    //const firstSample = sampleNames[0];
-    //buildCharts(firstSample);
     buildMetadata(sampleNames["Years"][0][0],sampleNames["States"][0][0]);
   });
 }
@@ -92,13 +96,12 @@ function stateChanged(newState) {
   //buildCharts(newSample);
   buildMetadata(curYear,newState);
 }
-/*
+
 var map = L.map("map", {
   center: [37.0902, -95.7129],
-  zoom: 11,
-  layers:[streetLayer,locLayer]
+  zoom: 11
 });
-*/
+
 
 // Adding tile layer
 var streetLayer = L.tileLayer("https://api.tiles.mapbox.com/v4/{id}/{z}/{x}/{y}.png?access_token={accessToken}", {
@@ -122,3 +125,159 @@ var baseMaps = {
 
 // Initialize the dashboard
 init();
+//############################################################################################
+(function(){
+  var width = 900;
+  var height = 500;
+
+  var svg = d3.select("#bubble")
+  .append("svg")
+  .attr("height",height)
+  .attr("width",width)
+  .append("g")
+  .attr("transform","translate(0,0)")
+/*
+  <defs>
+      <radialGradient id = "circleGradient">
+        <stop offset="0%" stop-color="#F433FF" stop-opacity="1"></stop>
+        <stop offset="100%" stop-color="#3DFF33" stop-opacity="1"></stop>
+      </radialGradient>
+  </defs>
+*/
+  var defs = svg.append("defs");
+
+  defs.append("radialGradient")
+  .attr("id","circleGradient")
+  .append("stop")
+  .attr("offset","0%")
+  .attr("stop-color","#F433FF")
+  .attr("stop-opacity","1")
+  .append("stop")
+  .attr("offset","100%")
+  .attr("stop-color","#F433FF")
+  .attr("stop-opacity","1");
+
+  var radiusScale = d3.scaleSqrt().domain([34412,5806445665]).range([10,80])
+
+  //simulation is a collection of forces detailing wheer we want our circles to go
+  //and how we want them to interact
+  //STEP ONE: Get them to the middle
+  //STEP TWO: Don' have them collide
+  var simulation = d3.forceSimulation()
+      .force("x",d3.forceX(width / 2).strength(0.05))
+      .force("y",d3.forceY(height / 2).strength(0.05))
+      .force("collide",d3.forceCollide(function(d){
+          return radiusScale(d.Amt) + 1;
+      }))
+/*
+  d3.queue()
+  .defer(d3.csv,"static/files/datapoints.csv")
+  .await(ready)
+*/
+  d3.csv("static/files/datapoints.csv",function(error,data){
+    if(error) return console.warn (error);
+      defs.selectAll(".losses-gradient")
+        .data(datapoints)
+        .enter().append("radialGradient")
+        .attr("class","losses-gradient")
+        .attr("id",function(d){
+            return d.Year
+        })
+        .append("stop")
+        .attr("offset","0%")
+        .attr("stop-color",function(d){
+            return d.ColorHtml
+        })
+        .attr("stop-opacity","1")
+        .append("stop")
+        .attr("offset","100%")
+        .attr("stop-color",function(d){
+            return d.ColorHtml
+        })
+        .attr("stop-opacity","1");
+      
+      var circles = svg.selectAll(".losses")
+      .data(datapoints)
+      .enter().append("circle")
+      .attr("class","losses")
+      .attr("r",function(d){
+          return radiusScale(d.Amt)
+      })
+      .attr("fill",function(d){
+          return "url(#" + d.Year + ")"
+      })
+      .on('click',function(d){
+          console.log(d)
+      })
+      
+      simulation.nodes(datapoints)
+          .on('tick',ticked)
+
+      function ticked() {
+          circles
+              .attr("cx",function(d){
+                  return d.x
+              })
+
+              .attr("cy",function(d){
+                  return d.y
+              })
+      }
+
+  });
+  
+
+/*
+  function ready(error,datapoints) {
+    console.log(datapoints);
+      if(error) return console.warn (error);
+      defs.selectAll(".losses-gradient")
+        .data(datapoints)
+        .enter().append("radialGradient")
+        .attr("class","losses-gradient")
+        .attr("id",function(d){
+            return d.Year
+        })
+        .append("stop")
+        .attr("offset","0%")
+        .attr("stop-color",function(d){
+            return d.ColorHtml
+        })
+        .attr("stop-opacity","1")
+        .append("stop")
+        .attr("offset","100%")
+        .attr("stop-color",function(d){
+            return d.ColorHtml
+        })
+        .attr("stop-opacity","1");
+      
+      var circles = svg.selectAll(".losses")
+      .data(datapoints)
+      .enter().append("circle")
+      .attr("class","losses")
+      .attr("r",function(d){
+          return radiusScale(d.Amt)
+      })
+      .attr("fill",function(d){
+          return "url(#" + d.Year + ")"
+      })
+      .on('click',function(d){
+          console.log(d)
+      })
+      
+      simulation.nodes(datapoints)
+          .on('tick',ticked)
+
+      function ticked() {
+          circles
+              .attr("cx",function(d){
+                  return d.x
+              })
+
+              .attr("cy",function(d){
+                  return d.y
+              })
+      }
+  }
+  */
+}) ();

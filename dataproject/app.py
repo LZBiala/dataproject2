@@ -146,7 +146,7 @@ def trendchart():
     return jsonify(trend_list)
 
 #--------------------------------------------------------------------------------------------
-# GeoJson Map routes - Dez, Chike, Raphael, If need to work on map, please make changes to this block for map 
+# GeoJson Map routes - Dez, Chike, Rafael, If need to work on map, please make changes to this block for map 
 
 @app.route("/names")
 def names():
@@ -226,6 +226,40 @@ def samples(sample):
     }
     return jsonify(data)
 
+@app.route("/maps")
+def mapsRoute():
+    return render_template("maps.html")
+
+
+@app.route("/decadeBubble")
+def Bubbles():
+    sel = [
+        Samples_Metadata.Year,
+        Samples_Metadata.EstimatedMinLossUSD,
+        Samples_Metadata.EstimatedMaxLossUSD,
+    ]
+    """Return `otu_ids`, `otu_labels`,and `sample_values`."""
+    results = db.session.query( Samples_Metadata.Year,func.sum(Samples_Metadata.EstimatedMaxLossUSD)).group_by(Samples_Metadata.Year).all()
+    decadeList = []
+    for result in results:
+        decadeDict  = {}
+        if(result[0] >= 1950 and result[0] <=1959):
+            decadeDict["Decade"] = 1950
+        elif(result[0] >= 1960 and result[0] <=1969):
+            decadeDict["Decade"] = 1960
+        elif(result[0] >= 1970 and result[0] <=1979):
+            decadeDict["Decade"] = 1970
+        elif(result[0] >= 1980 and result[0] <=1989):
+            decadeDict["Decade"] = 1980
+        elif(result[0] >= 1990 and result[0] <=1999):
+            decadeDict["Decade"] = 1990
+        else:
+            decadeDict["Decade"] = 2000
+        decadeDict["Year"] = result[0]
+        decadeDict["Amt"] = result[1]
+        decadeList.append(decadeDict)
+    return jsonify(decadeList)
+    
 #----------------------------------------------------------------------------------------------------------------
 @app.route("/")
 def jam():
