@@ -23,41 +23,68 @@ d3.json("/chart").then((data)=>{
  var trace0 = {
   x: x_decade,
   y: y_fscale_0,
+<<<<<<< HEAD
+  type: "bar",
+  name: "fscale 0"
+=======
   name: "F Scale 0",
   type: "bar"
 
 
+>>>>>>> c1dc757795f014c4c24ca12f18300be36998474d
 };
 var trace1 = {
   x: x_decade,
   y: y_fscale_1,
   name: "F Scale 1",
   type: "bar",
+  name: "fscale 1"
  
 };
 var trace2 = {
   x: x_decade,
   y: y_fscale_2,
+<<<<<<< HEAD
+  type: "bar",
+  name: "fscale 2"
+
+=======
   name: "F Scale 2",
   type: "bar"
+>>>>>>> c1dc757795f014c4c24ca12f18300be36998474d
 };
 var trace3 = {
   x: x_decade,
   y: y_fscale_3,
+<<<<<<< HEAD
+  type: "bar",
+  name: "fscale 3"
+=======
   name: "F Scale 3",
   type: "bar"
+>>>>>>> c1dc757795f014c4c24ca12f18300be36998474d
 };
 var trace4 = {
   x: x_decade,
   y: y_fscale_4,
+<<<<<<< HEAD
+  type: "bar",
+  name: "fscale 4"
+=======
   name: "F Scale 4",
   type: "bar"
+>>>>>>> c1dc757795f014c4c24ca12f18300be36998474d
 };
 var trace5 = {
   x: x_decade,
   y: y_fscale_5,
+<<<<<<< HEAD
+  type: "bar",
+  name: "fscale 5"
+=======
   name: "F Scale 5",
   type: "bar"
+>>>>>>> c1dc757795f014c4c24ca12f18300be36998474d
 };
 
 var data_1 = [trace0,trace1,trace2,trace3,trace4,trace5];
@@ -65,7 +92,11 @@ var data_1 = [trace0,trace1,trace2,trace3,trace4,trace5];
 var layout = {
   title: "Frequency of Tornadoes By Magnitude",
   xaxis: { title: "Decade" },
+<<<<<<< HEAD
+  yaxis: { title: "Frequency of Tornadoes by Magnitude" },
+=======
   yaxis: { title: "Frequency" },
+>>>>>>> c1dc757795f014c4c24ca12f18300be36998474d
   barmode: 'group'
 };
 

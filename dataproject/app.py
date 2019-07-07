@@ -10,6 +10,8 @@ from sqlalchemy import create_engine
 
 from flask import Flask, jsonify, render_template
 from flask_sqlalchemy import SQLAlchemy
+from sqlalchemy.sql import func
+
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -239,22 +241,31 @@ def Bubbles():
         Samples_Metadata.EstimatedMaxLossUSD,
     ]
     """Return `otu_ids`, `otu_labels`,and `sample_values`."""
-    results = db.session.query( Samples_Metadata.Year,func.sum(Samples_Metadata.EstimatedMaxLossUSD)).group_by(Samples_Metadata.Year).all()
+    results = db.session.query( Samples_Metadata.Year,func.sum(((Samples_Metadata.EstimatedMinLossUSD + Samples_Metadata.EstimatedMaxLossUSD)/2))).group_by(Samples_Metadata.Year).all()
     decadeList = []
     for result in results:
         decadeDict  = {}
         if(result[0] >= 1950 and result[0] <=1959):
             decadeDict["Decade"] = 1950
+            decadeDict["Color"] = "#04B404"
         elif(result[0] >= 1960 and result[0] <=1969):
             decadeDict["Decade"] = 1960
+            decadeDict["Color"] = "#0040FF"
         elif(result[0] >= 1970 and result[0] <=1979):
             decadeDict["Decade"] = 1970
+            decadeDict["Color"] = "#2ECCFA"
         elif(result[0] >= 1980 and result[0] <=1989):
             decadeDict["Decade"] = 1980
+            decadeDict["Color"] = "#8258FA"
         elif(result[0] >= 1990 and result[0] <=1999):
             decadeDict["Decade"] = 1990
-        else:
+            decadeDict["Color"] = "#F781F3"
+        elif(result[0] >= 2000 and result[0] <=2009):
             decadeDict["Decade"] = 2000
+            decadeDict["Color"] = "#DBA901"
+        else:
+            decadeDict["Decade"] = 2010
+            decadeDict["Color"] = "#FE2E2E"
         decadeDict["Year"] = result[0]
         decadeDict["Amt"] = result[1]
         decadeList.append(decadeDict)

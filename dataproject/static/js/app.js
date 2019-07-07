@@ -128,7 +128,7 @@ init();
 //############################################################################################
 (function(){
   var width = 900;
-  var height = 500;
+  var height = 900;
 
   var svg = d3.select("#bubble")
   .append("svg")
@@ -136,148 +136,150 @@ init();
   .attr("width",width)
   .append("g")
   .attr("transform","translate(0,0)")
-/*
-  <defs>
-      <radialGradient id = "circleGradient">
-        <stop offset="0%" stop-color="#F433FF" stop-opacity="1"></stop>
-        <stop offset="100%" stop-color="#3DFF33" stop-opacity="1"></stop>
-      </radialGradient>
-  </defs>
-*/
+
   var defs = svg.append("defs");
 
-  defs.append("radialGradient")
+  defs.append("linearGradient")
   .attr("id","circleGradient")
   .append("stop")
-  .attr("offset","0%")
-  .attr("stop-color","#F433FF")
-  .attr("stop-opacity","1")
-  .append("stop")
   .attr("offset","100%")
-  .attr("stop-color","#F433FF")
-  .attr("stop-opacity","1");
+  .attr("stop-color","#F433FF");
+  
 
   var radiusScale = d3.scaleSqrt().domain([34412,5806445665]).range([10,80])
 
-  //simulation is a collection of forces detailing wheer we want our circles to go
-  //and how we want them to interact
-  //STEP ONE: Get them to the middle
-  //STEP TWO: Don' have them collide
+  //simulation is a collection of forces detailing where we want our circles to go and how we want
+  //them to interact
+  //STEP ONE: get them to the middle
+  //STEP TWO: don't have them collide!
+  var forceXSeparate = d3.forceX(function(d){
+    var j = width / 2;
+    if((d.Decade >= 1950 && d.Decade <= 1960)||(d.Decade >= 1990 && d.Decade <= 2000))
+    {
+      j = 250;
+    }
+    else if((d.Decade >= 1970 && d.Decade <= 1980)||(d.Decade >= 2010))
+    {
+      j = 750;
+    }
+    return j;
+  }).strength(0.05)
+
+  var forceYSeparate = d3.forceY(function(d){
+    var j = height / 2;
+    if((d.Decade >= 1950 && d.Decade <= 1960)||(d.Decade >= 1970 && d.Decade <= 1980))
+    {
+      j = 250;
+    }
+    else if((d.Decade >= 1990 && d.Decade <= 2000)||(d.Decade >= 2010))
+    {
+      j = 750;
+    }
+    return j;
+  }).strength(0.05)
+
+  var forceXCombine = d3.forceX(function(d){
+    return width / 2
+  }).strength(0.05)
+
+  var forceYCombine = d3.forceY(function(d){
+    return height / 2
+  }).strength(0.05)
+
+  var forceCollide = d3.forceCollide(function(d){
+    return radiusScale(d.Amt) + 1
+  })
+
   var simulation = d3.forceSimulation()
-      .force("x",d3.forceX(width / 2).strength(0.05))
-      .force("y",d3.forceY(height / 2).strength(0.05))
-      .force("collide",d3.forceCollide(function(d){
-          return radiusScale(d.Amt) + 1;
-      }))
-/*
-  d3.queue()
-  .defer(d3.csv,"static/files/datapoints.csv")
-  .await(ready)
-*/
-  d3.csv("static/files/datapoints.csv",function(error,data){
-    if(error) return console.warn (error);
-      defs.selectAll(".losses-gradient")
-        .data(datapoints)
-        .enter().append("radialGradient")
+    .force("x",forceXCombine)
+    .force("y",forceYCombine)
+    .force("collide",forceCollide)
+
+  d3.json("/decadeBubble").then(function(myData){
+
+    //convert amount value to a numerical value
+    myData.forEach(function(data) {
+      data.Amt = +data.Amt;
+      data.Decade = +data.Decade;
+    });
+  
+    defs.selectAll(".losses-gradient")
+        .data(myData)
+        .enter().append("linearGradient")
         .attr("class","losses-gradient")
         .attr("id",function(d){
-            return d.Year
+          return d.Year
         })
-        .append("stop")
-        .attr("offset","0%")
-        .attr("stop-color",function(d){
-            return d.ColorHtml
-        })
-        .attr("stop-opacity","1")
         .append("stop")
         .attr("offset","100%")
         .attr("stop-color",function(d){
-            return d.ColorHtml
-        })
-        .attr("stop-opacity","1");
-      
-      var circles = svg.selectAll(".losses")
-      .data(datapoints)
+          return d.Color
+        });
+        
+    // Define the div for the tooltip
+    var div = d3.select("body").append("div")	
+    .attr("class", "tooltip")				
+    .style("opacity", 0);
+
+    var circles = svg.selectAll(".losses")
+      .data(myData)
       .enter().append("circle")
       .attr("class","losses")
       .attr("r",function(d){
-          return radiusScale(d.Amt)
+        return radiusScale(d.Amt)
       })
       .attr("fill",function(d){
-          return "url(#" + d.Year + ")"
+        return "url(#" + d.Year + ")"
       })
       .on('click',function(d){
-          console.log(d)
+        console.log(d);
+      })
+      .on('mouseover',function(d){
+        div.transition()
+          .duration(200)
+          .style("opacity",.9);
+        div.html(`<strong>${d.Year}<strong><hr>${d.Amt} estimated loss`)
+          .style("left", (d3.event.pageX) + "px")		
+          .style("top", (d3.event.pageY - 28) + "px");;
+      })
+      .on('mouseout',function(d){
+        div.transition()
+          .duration(200)
+          .style("opacity",0);
+      })
+
+      //Event for separating bubbles based on decade
+      d3.select("#decade").on('click',function(d){
+        simulation
+          .force("x",forceXSeparate)
+          .force("y",forceYSeparate)
+          .alphaTarget(0.5)
+          .restart()
+      })
+      //Event for recombining bubbles
+      d3.select("#combine").on('click',function(d){
+        simulation
+          .force("x",forceXCombine)
+          .force("y",forceYCombine)
+          .alphaTarget(0.5)
+          .restart()
       })
       
-      simulation.nodes(datapoints)
-          .on('tick',ticked)
+      simulation.nodes(myData)
+        .on('tick',ticked)
 
       function ticked() {
-          circles
-              .attr("cx",function(d){
-                  return d.x
-              })
+        circles
+          .attr("cx",function(d){
+            return d.x
+          })
 
-              .attr("cy",function(d){
-                  return d.y
-              })
+          .attr("cy",function(d){
+            return d.y
+          })
       }
-
-  });
+  });//end d3.json bubbles
   
 
-/*
-  function ready(error,datapoints) {
-    console.log(datapoints);
-      if(error) return console.warn (error);
-      defs.selectAll(".losses-gradient")
-        .data(datapoints)
-        .enter().append("radialGradient")
-        .attr("class","losses-gradient")
-        .attr("id",function(d){
-            return d.Year
-        })
-        .append("stop")
-        .attr("offset","0%")
-        .attr("stop-color",function(d){
-            return d.ColorHtml
-        })
-        .attr("stop-opacity","1")
-        .append("stop")
-        .attr("offset","100%")
-        .attr("stop-color",function(d){
-            return d.ColorHtml
-        })
-        .attr("stop-opacity","1");
-      
-      var circles = svg.selectAll(".losses")
-      .data(datapoints)
-      .enter().append("circle")
-      .attr("class","losses")
-      .attr("r",function(d){
-          return radiusScale(d.Amt)
-      })
-      .attr("fill",function(d){
-          return "url(#" + d.Year + ")"
-      })
-      .on('click',function(d){
-          console.log(d)
-      })
-      
-      simulation.nodes(datapoints)
-          .on('tick',ticked)
-
-      function ticked() {
-          circles
-              .attr("cx",function(d){
-                  return d.x
-              })
-
-              .attr("cy",function(d){
-                  return d.y
-              })
-      }
-  }
-  */
+  
 }) ();
