@@ -2,6 +2,8 @@
 
 Aggregated Tornado data in the United States from 1950 to 2018.
 
+Heroku demo: https://tornado-visualization.herokuapp.com/
+
  *Cost impact of tornado based on tornado magnitude interactive D3 bubble chart
  
  *Leaflet interactive map displaying year and state with descriptions of the magnitude of the tornado and the distance
