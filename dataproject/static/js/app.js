@@ -1,3 +1,6 @@
+//Creator: Chike Uduku
+//Created: 07/05/2019
+//Desc: This function creates the custom tornado icon
 function buildMetadata(year,state) {
   var greenIcon = L.icon({
     iconUrl: 'static/images/Tmain.png',
@@ -10,9 +13,10 @@ function buildMetadata(year,state) {
     popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
 });
 
-var locMarkers = [];
-var lineMarkers = [];
+var locMarkers = []; //Array to house markers for tornade latitude and longitude coordinates
+var lineMarkers = []; //Array to house plolylines reflecting path traveled by tornado
 
+//get jsonified data for a given year and state
   var url = `/metadata/${year}/${state}`;
   d3.json(url).then(function(data){
   
@@ -43,20 +47,9 @@ var lineMarkers = [];
     L.control.layers(baseMaps, overlayMaps).addTo(map);
   });
   
-}//end buildMetadata
+}//end buildMetadara
 
-function buildCharts(sample) {
-  console.log("Build new chart");
-
-  // @TODO: Use `d3.json` to fetch the sample data for the plots
-
-    // @TODO: Build a Bubble Chart using the sample data
-
-    // @TODO: Build a Pie Chart
-    // HINT: You will need to use slice() to grab the top 10 sample_values,
-    // otu_ids, and labels (10 each).
-}
-
+//initialize plot with markers ofr first state and year in respective dropdown menus
 function init() {
   
   // Grab a reference to the dropdown select element
@@ -83,17 +76,19 @@ function init() {
   });
 }
 
+//Creator: Chike uduku
+//Created: 05/07/2019
+//Desc: This fucntion is called when the value in the year dropdown menu changes
 function yearChanged(newYear) {
   var curState = d3.select("#selState").property("value");
-  // Fetch new data each time a new sample is selected
-  //buildCharts(newSample);
   buildMetadata(newYear,curState);
 }
 
+//Creator: Chike uduku
+//Created: 05/07/2019
+//Desc: This fucntion is called when the value in the state dropdown menu changes
 function stateChanged(newState) {
   var curYear = d3.select("#selDataset").property("value");
-  // Fetch new data each time a new sample is selected
-  //buildCharts(newSample);
   buildMetadata(curYear,newState);
 }
 
@@ -125,11 +120,15 @@ var baseMaps = {
 
 // Initialize the dashboard
 init();
-//############################################################################################
+
+//#########################################################################################################################
+//                              FORCE BUBBLES
+//########################################################################################################################
 (function(){
   var width = 900;
   var height = 900;
 
+  //get designated dive for force bubles and apend an svg element to  it
   var svg = d3.select("#bubble")
   .append("svg")
   .attr("height",height)
@@ -139,13 +138,14 @@ init();
 
   var defs = svg.append("defs");
 
+  //append definitions
   defs.append("linearGradient")
   .attr("id","circleGradient")
   .append("stop")
   .attr("offset","100%")
   .attr("stop-color","#F433FF");
   
-
+//define radius scale based on minimum and maximum property loss amount
   var radiusScale = d3.scaleSqrt().domain([34412,5806445665]).range([10,80])
 
   //simulation is a collection of forces detailing where we want our circles to go and how we want
@@ -195,14 +195,16 @@ init();
     .force("y",forceYCombine)
     .force("collide",forceCollide)
 
+    //get monetary loss amount as wel as designated decade for each year
   d3.json("/decadeBubble").then(function(myData){
 
-    //convert amount value to a numerical value
+    //convert amount and decade values to numerical values
     myData.forEach(function(data) {
       data.Amt = +data.Amt;
       data.Decade = +data.Decade;
     });
   
+    //append definitions for circles to be drawn
     defs.selectAll(".losses-gradient")
         .data(myData)
         .enter().append("linearGradient")
@@ -220,7 +222,8 @@ init();
     var div = d3.select("body").append("div")	
     .attr("class", "tooltip")				
     .style("opacity", 0);
-
+    
+    //draw circles whose radius is based on amount of monetary loss. Color cirlces based on what decade that year belongs to
     var circles = svg.selectAll(".losses")
       .data(myData)
       .enter().append("circle")
@@ -236,7 +239,7 @@ init();
       })
       .on('mouseover',function(d){
         div.transition()
-          .duration(200)
+          .duration(500)
           .style("opacity",.9);
         div.html(`<strong>${d.Year}<strong><hr>${d.Amt} estimated loss`)
           .style("left", (d3.event.pageX) + "px")		
@@ -244,7 +247,7 @@ init();
       })
       .on('mouseout',function(d){
         div.transition()
-          .duration(200)
+          .duration(500)
           .style("opacity",0);
       })
 

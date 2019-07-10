@@ -29,7 +29,6 @@ html {
   border-radius: 5px;
 }
 
-<<<<<<< HEAD
 div.tooltip {	
   position: absolute;			
   text-align: center;			
@@ -42,9 +41,3 @@ div.tooltip {
   border-radius: 8px;			
   pointer-events: none;			
 }
-=======
-.jumbotron {
-  background-image: url("../image/Tornaadoo.jpg");
-  background-size: cover;
-}
->>>>>>> c1dc757795f014c4c24ca12f18300be36998474d
